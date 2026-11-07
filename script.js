@@ -355,3 +355,64 @@ document.addEventListener("DOMContentLoaded", async () => {
     }, 200);
 
 });
+/* =========================
+   GOATCOUNTER VISITOR COUNTER
+========================= */
+
+(function () {
+
+    function initializeVisitorCounter() {
+
+        const counter = document.getElementById("visitor-count");
+
+        if (!counter) return;
+
+        let attempts = 0;
+
+        const checkGoatCounter = setInterval(() => {
+
+            attempts++;
+
+            if (
+                window.goatcounter &&
+                typeof window.goatcounter.visit_count === "function"
+            ) {
+
+                clearInterval(checkGoatCounter);
+
+                counter.innerHTML = "";
+
+                window.goatcounter.visit_count({
+                    append: "#visitor-count",
+                    path: "TOTAL",
+                    no_branding: true
+                });
+
+            }
+
+            if (attempts >= 100) {
+
+                clearInterval(checkGoatCounter);
+
+                counter.textContent = "Counter connection failed.";
+
+                console.error(
+                    "GoatCounter did not load. Check the tracking script and site code."
+                );
+
+            }
+
+        }, 200);
+
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeVisitorCounter
+        );
+    } else {
+        initializeVisitorCounter();
+    }
+
+})();
