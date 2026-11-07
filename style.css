@@ -2803,3 +2803,32 @@ body footer {
         transition: none;
     }
 }
+
+/* WEBSITE VISITOR COUNTER */
+
+.visitor-counter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 25px 0;
+    color: var(--text);
+}
+
+.visitor-icon {
+    font-size: 25px;
+    color: var(--accent);
+}
+
+.visitor-counter strong {
+    font-size: 14px;
+}
+
+.visitor-counter p {
+    margin: 3px 0;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+body.dark-mode .visitor-counter {
+    color: var(--text);
+}
