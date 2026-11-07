@@ -1,44 +1,49 @@
-
 /* =========================
-   DARK MODE TOGGLE
+   DARK / LIGHT MODE TOGGLE
 ========================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("themeToggle");
 
-  if (!themeToggle) {
-    console.error("Dark mode button #themeToggle was not found.");
-    return;
-  }
+    const themeToggle = document.getElementById("themeToggle");
+    const body = document.body;
 
-  const body = document.body;
+    if (!themeToggle) {
+        console.error("Cannot find #themeToggle. Check your HTML button ID.");
+        return;
+    }
 
-  function updateTheme(isDark) {
-    body.classList.toggle("dark-mode", isDark);
+    function setTheme(theme) {
 
-    localStorage.setItem(
-      "portfolio-theme",
-      isDark ? "dark" : "light"
-    );
+        const isDark = theme === "dark";
 
-    themeToggle.textContent = isDark ? "☀" : "◐";
+        body.classList.toggle("dark-mode", isDark);
 
-    themeToggle.setAttribute("aria-pressed", String(isDark));
-    themeToggle.setAttribute(
-      "aria-label",
-      isDark ? "Switch to light mode" : "Switch to dark mode"
-    );
-  }
+        themeToggle.textContent = isDark ? "☀" : "◐";
 
-  // Restore saved theme
-  const savedTheme = localStorage.getItem("portfolio-theme");
-  updateTheme(savedTheme === "dark");
+        themeToggle.setAttribute("aria-pressed", String(isDark));
 
-  // Toggle theme when clicked
-  themeToggle.addEventListener("click", () => {
-    const isDark = !body.classList.contains("dark-mode");
-    updateTheme(isDark);
-  });
+        themeToggle.setAttribute(
+            "aria-label",
+            isDark ? "Switch to light mode" : "Switch to dark mode"
+        );
+
+        localStorage.setItem("portfolio-theme", theme);
+    }
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem("portfolio-theme");
+
+    setTheme(savedTheme === "dark" ? "dark" : "light");
+
+    // Switch themes
+    themeToggle.addEventListener("click", () => {
+
+        const isCurrentlyDark = body.classList.contains("dark-mode");
+
+        setTheme(isCurrentlyDark ? "light" : "dark");
+
+    });
+
 });
 
 document.addEventListener("DOMContentLoaded", () => {
