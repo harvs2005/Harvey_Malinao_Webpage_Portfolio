@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <script data-goatcounter="https://jamesharvey.goatcounter.com/count"
+  
+<script data-goatcounter="https://jamesharvey.goatcounter.com/count"
         async src="//gc.zgo.at/count.js">
   </script>
-  
+
 <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -420,7 +420,7 @@
         <div><p class="eyebrow">07 / CONTACT</p><h2>Let's create something meaningful.</h2><p class="section-copy">For commissions, collaborations, school projects, or art inquiries, send a message below.</p>
           <div class="contact-details"><p><small>Email</small><strong>jamesharveymalinao21@example.com</strong></p><p><small>Location</small><strong>Calamba, Laguna, Philippines</strong></p><p><small>Social</small><strong>Instagram • Facebook </strong></p></div>
         </div>
-        <form id="contactForm" class="contact-form" action="https://formspree.io/f/xzeeyvrn"
+        <form id="contactForm" class="contact-form"  action="https://formspree.io/f/xzeeyvrn"
       method="POST">
           <label>Name<input required name="name" autocomplete="name"></label>
           <label>Email<input required type="email" name="email" autocomplete="email"></label>
@@ -463,8 +463,62 @@
     </section>
   </main>
 
-  <footer><div class="container footer-grid"><div><a class="brand" href="#home"><span>JH</span> James Harvey</a><p>Drawing • Visual Arts • Tattoo Art</p></div><div><p>Quick Links</p><a href="#about">About</a><a href="#projects">Gallery</a><a href="#contact">Contact</a></div><div><p>Connect</p><a href="#" aria-label="Instagram">Instagram</a><a href="#" aria-label="Facebook">Facebook</a></div><div class="container copyright">© <span id="year"></span> James Harvey. All rights reserved.</div></footer>
+  <footer><div class="container footer-grid"><div><a class="brand" href="#home"><span>JH</span> James Harvey</a><p>Drawing • Visual Arts • Tattoo Art</p></div><div><p>Quick Links</p><a href="#about">About</a><a href="#projects">Gallery</a><a href="#contact">Contact</a></div><div><p>Connect</p><a href="#" aria-label="Instagram">Instagram</a><a href="#" aria-label="Facebook">Facebook</a></div>
+   
+    <div class="visitor-counter" id="visitor-counter">
+    <span class="visitor-icon">◉</span>
+    <div>
+        <strong>Website Visitors</strong>
+        <p>Loading visitor count...</p>
+    </div>
+</div>
+    
+    <div class="container copyright">© <span id="year"></span> James Harvey. All rights reserved.</div></footer>
 
   <script src="script.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const counter = document.getElementById("visitor-counter");
+
+    if (!counter) return;
+
+    const loadVisitorCounter = () => {
+        if (
+            window.goatcounter &&
+            typeof window.goatcounter.visit_count === "function"
+        ) {
+            window.goatcounter.visit_count({
+                append: "#visitor-counter",
+                path: "TOTAL",
+                style: `
+                    div {
+                        background: #fffdf8;
+                        color: #171716;
+                        border: 1px solid #d9d4cb;
+                        border-radius: 12px;
+                        padding: 12px 18px;
+                        font-family: DM Sans, sans-serif;
+                    }
+                `
+            });
+
+            return true;
+        }
+
+        return false;
+    };
+
+    if (!loadVisitorCounter()) {
+        const checkCounter = setInterval(() => {
+            if (loadVisitorCounter()) {
+                clearInterval(checkCounter);
+            }
+        }, 200);
+
+        setTimeout(() => clearInterval(checkCounter), 10000);
+    }
+});
+</script>
 </body>
 </html>
