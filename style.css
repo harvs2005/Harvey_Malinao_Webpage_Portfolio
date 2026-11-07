@@ -3073,3 +3073,28 @@ body.dark-mode .visitor-number {
         gap: 10px;
     }
 }
+/* VISITOR COUNTER EYE ICON */
+
+.visitor-icon {
+    width: 42px;
+    height: 42px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent2, #e4b05a);
+}
+
+.visitor-icon i {
+    display: inline-block !important;
+    font-family: "bootstrap-icons" !important;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--accent2, #e4b05a);
+    opacity: 1;
+    visibility: visible;
+}
+
+body.dark-mode .visitor-icon i {
+    color: #e4b05a;
+}
