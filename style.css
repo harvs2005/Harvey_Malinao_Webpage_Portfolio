@@ -2945,3 +2945,59 @@ footer {
         color 0.3s ease,
         border-color 0.3s ease;
 }
+/* =========================
+   VISITOR COUNTER THEME FIX
+========================= */
+
+/* Default / Light Mode */
+.visitor-section {
+    color: #ffffff;
+}
+
+.visitor-counter {
+    color: #ffffff;
+}
+
+.visitor-content h3 {
+    color: #ffffff;
+}
+
+#visitor-count {
+    color: #ffffff;
+}
+
+#visitor-count span {
+    color: #cccccc;
+}
+
+/* Dark Mode */
+body.dark-mode .visitor-section {
+    background: #0e0e0d;
+    color: #ffffff;
+}
+
+body.dark-mode .visitor-counter {
+    color: #ffffff;
+}
+
+body.dark-mode .visitor-content h3 {
+    color: #ffffff !important;
+}
+
+body.dark-mode #visitor-count {
+    color: #ffffff !important;
+}
+
+body.dark-mode #visitor-count span {
+    color: #e4b05a !important;
+}
+
+body.dark-mode .visitor-loading,
+body.dark-mode .visitor-error,
+body.dark-mode .visitor-label {
+    color: #b5afa5 !important;
+}
+
+body.dark-mode .visitor-number {
+    color: #e4b05a !important;
+}
