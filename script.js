@@ -297,3 +297,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
     filterArtworks();
 });
+
+/* =========================
+   WEBSITE VISITOR COUNTER
+========================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const counter = document.getElementById("visitor-count");
+
+    if (!counter) return;
+
+    let attempts = 0;
+    const maxAttempts = 100;
+
+    const loadVisitorCount = () => {
+
+        if (
+            window.goatcounter &&
+            typeof window.goatcounter.visit_count === "function"
+        ) {
+
+            counter.innerHTML = "";
+
+            window.goatcounter.visit_count({
+                append: "#visitor-count",
+                path: "TOTAL",
+                no_branding: true
+            });
+
+            return true;
+        }
+
+        return false;
+    };
+
+    const checkCounter = setInterval(() => {
+
+        attempts++;
+
+        if (loadVisitorCount()) {
+            clearInterval(checkCounter);
+        }
+
+        if (attempts >= maxAttempts) {
+            clearInterval(checkCounter);
+
+            counter.innerHTML = `
+                <span class="visitor-error">
+                    Visitor count unavailable.
+                </span>
+            `;
+        }
+
+    }, 200);
+
+});
