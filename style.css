@@ -2832,3 +2832,116 @@ body footer {
 body.dark-mode .visitor-counter {
     color: var(--text);
 }
+
+/* =========================
+   DARK MODE THEME FIX
+========================= */
+
+body.dark-mode {
+    --bg: #171716;
+    --surface: #22211f;
+    --surface-2: #1c1b19;
+    --text: #f4f0e9;
+    --muted: #b5afa5;
+    --line: #3e3a34;
+    --accent: #e17b59;
+    --accent2: #e4b05a;
+    --dark: #0e0e0d;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* Main background and text */
+
+body.dark-mode {
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* Header */
+
+body.dark-mode .site-header {
+    background: rgba(23, 23, 22, 0.95);
+    border-color: var(--line);
+}
+
+/* Sections */
+
+body.dark-mode .muted {
+    background: #1c1b19;
+}
+
+body.dark-mode .section {
+    color: var(--text);
+}
+
+/* Cards */
+
+body.dark-mode .skill-card,
+body.dark-mode .education-card,
+body.dark-mode .project-card,
+body.dark-mode .contact-form {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--line);
+}
+
+/* Gallery */
+
+body.dark-mode .project-image {
+    background: linear-gradient(145deg, #4a4741, #302f2c);
+    color: #f4f0e9;
+}
+
+/* Inputs */
+
+body.dark-mode .filters input,
+body.dark-mode .filters select,
+body.dark-mode .contact-form input,
+body.dark-mode .contact-form textarea {
+    background: #22211f;
+    color: #f4f0e9;
+    border-color: #3e3a34;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #aaa59d;
+}
+
+/* Navigation links */
+
+body.dark-mode .nav-links {
+    color: var(--text);
+}
+
+/* Buttons */
+
+body.dark-mode .icon-btn {
+    color: var(--text);
+}
+
+/* Footer */
+
+body.dark-mode footer {
+    background: #0e0e0d;
+    color: #f4f0e9;
+}
+
+/* Smooth transition */
+
+body,
+.site-header,
+.section,
+.project-card,
+.skill-card,
+.education-card,
+.contact-form,
+.filters input,
+.filters select,
+.contact-form textarea,
+footer {
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease;
+}
