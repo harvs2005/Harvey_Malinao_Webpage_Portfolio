@@ -3184,3 +3184,79 @@ body.dark-mode::before {
         animation: none;
     }
 }
+
+
+/* =========================================
+   ANIMATED PORTFOLIO BACKGROUND
+========================================= */
+
+html {
+    background: #f5f2ec;
+}
+
+body {
+    background: transparent !important;
+    position: relative;
+}
+
+/* Fixed animated gradient layer */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background: linear-gradient(
+        125deg,
+        #f5f2ec,
+        #f3e7d8,
+        #f1d9c9,
+        #f5eddf,
+        #f5f2ec
+    );
+
+    background-size: 400% 400%;
+    animation: movingPortfolioGradient 18s ease infinite;
+}
+
+@keyframes movingPortfolioGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Dark mode */
+body.dark-mode::before {
+    background: linear-gradient(
+        125deg,
+        #171716,
+        #29201d,
+        #38251f,
+        #24211e,
+        #171716
+    );
+
+    background-size: 400% 400%;
+    animation: movingPortfolioGradient 18s ease infinite;
+}
+
+/* Preserve transparent section backgrounds */
+body > main > section:not(.dark-section) {
+    background-color: transparent;
+}
+
+/* Keep reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+    body::before {
+        animation: none;
+    }
+}
