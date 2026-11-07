@@ -302,53 +302,55 @@ document.addEventListener("DOMContentLoaded", () => {
    WEBSITE VISITOR COUNTER
 ========================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
     const counter = document.getElementById("visitor-count");
 
     if (!counter) return;
 
-    let attempts = 0;
-    const maxAttempts = 100;
+    const counterURL =
+        "https://jamesharvey.goatcounter.com/counter/TOTAL.json";
 
-    const loadVisitorCount = () => {
+    counter.innerHTML = `
+        <span class="visitor-loading">Loading visitor count...</span>
+    `;
 
-        if (
-            window.goatcounter &&
-            typeof window.goatcounter.visit_count === "function"
-        ) {
+    try {
 
-            counter.innerHTML = "";
+        const response = await fetch(counterURL, {
+            cache: "no-store"
+        });
 
-            window.goatcounter.visit_count({
-                append: "#visitor-count",
-                path: "TOTAL",
-                no_branding: true
-            });
-
-            return true;
+        if (!response.ok) {
+            throw new Error(`GoatCounter returned ${response.status}`);
         }
 
-        return false;
-    };
+        const data = await response.json();
 
-    const checkCounter = setInterval(() => {
-
-        attempts++;
-
-        if (loadVisitorCount()) {
-            clearInterval(checkCounter);
+        if (typeof data.count === "undefined") {
+            throw new Error("Visitor count was not found.");
         }
 
-        if (attempts >= maxAttempts) {
-            clearInterval(checkCounter);
+        counter.innerHTML = `
+            <span class="visitor-number">
+                ${data.count}
+            </span>
+            <span class="visitor-label">Total recorded visits</span>
+        `;
 
-            counter.innerHTML = `
-                <span class="visitor-error">
-                    Visitor count unavailable.
-                </span>
-            `;
-        }
+    } catch (error) {
+
+        console.error("Visitor counter error:", error);
+
+        counter.innerHTML = `
+            <span class="visitor-error">
+                Unable to load visitor count.
+            </span>
+        `;
+
+    }
+
+});
 
     }, 200);
 
