@@ -189,8 +189,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function updateCounter() {
       try {
-        const res = await fetch(`${COUNTER_URL}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok) throw new Error(res.status);
+        const res = await fetch(COUNTER_URL);
+        if (!res.ok) throw new Error("GoatCounter returned HTTP " + res.status);
         const data = await res.json();
         const visitors = toNumber(data.count_unique ?? data.count);
         const views = toNumber(data.count);
@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         current = visitors;
         viewsEl.textContent = `• ${views.toLocaleString()} page views`;
       } catch (err) {
+        console.error("Visitor counter error:", err);
         if (!numberEl) counter.innerHTML = '<span class="visitor-error">Visitor count unavailable.</span>';
       }
     }
