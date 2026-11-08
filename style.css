@@ -440,3 +440,7 @@ body.dark-mode .ambient-particles span { background: rgba(228, 176, 90, .35); bo
     transition-duration: .01ms !important;
   }
 }
+
+/* Visitor counter: page views text */
+#visitor-count { flex-wrap: wrap; }
+.visitor-views { color: #888; font-size: 12px; }
