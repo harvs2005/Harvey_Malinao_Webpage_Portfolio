@@ -1,359 +1,190 @@
-/* =========================
-   DARK / LIGHT MODE TOGGLE
-========================= */
-
 document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
 
-    const themeToggle = document.getElementById("themeToggle");
-    const body = document.body;
+  /* ---------- Footer year ---------- */
+  const year = $("year");
+  if (year) year.textContent = new Date().getFullYear();
 
-    if (!themeToggle) {
-        console.error("Cannot find #themeToggle. Check your HTML button ID.");
-        return;
+  /* ---------- Dark / light theme ---------- */
+  const themeToggle = $("themeToggle");
+
+  function setTheme(theme) {
+    const isDark = theme === "dark";
+    document.body.classList.toggle("dark-mode", isDark);
+    if (themeToggle) {
+      themeToggle.textContent = isDark ? "☀" : "◐";
+      themeToggle.setAttribute("aria-pressed", String(isDark));
+      themeToggle.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
     }
+    try { localStorage.setItem("portfolio-theme", theme); } catch (e) {}
+  }
 
-    function setTheme(theme) {
+  let savedTheme = null;
+  try { savedTheme = localStorage.getItem("portfolio-theme"); } catch (e) {}
+  setTheme(savedTheme === "dark" ? "dark" : "light");
 
-        const isDark = theme === "dark";
+  themeToggle?.addEventListener("click", () => {
+    setTheme(document.body.classList.contains("dark-mode") ? "light" : "dark");
+  });
 
-        body.classList.toggle("dark-mode", isDark);
+  /* ---------- Mobile menu ---------- */
+  const menuToggle = document.querySelector(".menu-toggle");
+  const navLinks = document.querySelector(".nav-links");
 
-        themeToggle.textContent = isDark ? "☀" : "◐";
+  menuToggle?.addEventListener("click", () => {
+    const open = navLinks.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(open));
+  });
 
-        themeToggle.setAttribute("aria-pressed", String(isDark));
+  navLinks?.querySelectorAll("a").forEach((link) =>
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+      menuToggle?.setAttribute("aria-expanded", "false");
+    })
+  );
 
-        themeToggle.setAttribute(
-            "aria-label",
-            isDark ? "Switch to light mode" : "Switch to dark mode"
-        );
+  /* ---------- Gallery: modal ---------- */
+  const projectGrid = $("projectGrid");
+  const artModal = $("artModal");
 
-        localStorage.setItem("portfolio-theme", theme);
-    }
+  if (projectGrid && artModal) {
+    const modalImage = $("modalImage");
+    const toggleModalArt = $("toggleModalArt");
+    let selectedCard = null;
+    let showingDigital = false;
 
-    // Load saved theme
-    const savedTheme = localStorage.getItem("portfolio-theme");
-
-    setTheme(savedTheme === "dark" ? "dark" : "light");
-
-    // Switch themes
-    themeToggle.addEventListener("click", () => {
-
-        const isCurrentlyDark = body.classList.contains("dark-mode");
-
-        setTheme(isCurrentlyDark ? "light" : "dark");
-
+    projectGrid.querySelectorAll(".project-card").forEach((card) => {
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `View details: ${card.dataset.title || "artwork"}`);
     });
 
-});
+    function openArtwork(card) {
+      selectedCard = card;
+      showingDigital = false;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const projectGrid = document.getElementById("projectGrid");
-  const artModal = document.getElementById("artModal");
-  const modalClose = document.getElementById("modalClose");
-  const modalImage = document.getElementById("modalImage");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalCategory = document.getElementById("modalCategory");
-  const modalMedium = document.getElementById("modalMedium");
-  const modalDescription = document.getElementById("modalDescription");
-  const toggleModalArt = document.getElementById("toggleModalArt");
-  const searchInput = document.getElementById("projectSearch");
-  const categoryFilter = document.getElementById("categoryFilter");
-  const emptyState = document.getElementById("emptyState");
+      const original = card.querySelector(".original-art");
+      const digital = card.querySelector(".digital-art");
 
-  if (!projectGrid || !artModal) {
-    console.error("Gallery or artwork modal was not found.");
-    return;
+      $("modalTitle").textContent = card.dataset.title || "Untitled Artwork";
+      $("modalCategory").textContent = card.dataset.category || "Artwork";
+      $("modalMedium").textContent = card.dataset.medium || "";
+      $("modalDescription").textContent = card.dataset.description || "";
+
+      modalImage.src = original ? original.getAttribute("src") : "";
+      modalImage.alt = original ? original.alt : card.dataset.title || "";
+
+      toggleModalArt.hidden = !digital;
+      toggleModalArt.textContent = "View Digital Version";
+
+      artModal.classList.add("is-open");
+      artModal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      $("modalClose")?.focus();
+    }
+
+    function closeArtwork() {
+      artModal.classList.remove("is-open");
+      artModal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      selectedCard?.focus();
+      selectedCard = null;
+    }
+
+    function swapModalImage(img) {
+      modalImage.classList.remove("artwork-arriving");
+      modalImage.classList.add("artwork-changing");
+      setTimeout(() => {
+        modalImage.src = img.getAttribute("src");
+        modalImage.alt = img.alt;
+        modalImage.classList.remove("artwork-changing");
+        modalImage.classList.add("artwork-arriving");
+      }, 250);
+    }
+
+    modalImage.addEventListener("animationend", () => modalImage.classList.remove("artwork-arriving"));
+
+    projectGrid.addEventListener("click", (e) => {
+      const card = e.target.closest(".project-card");
+      if (card) openArtwork(card);
+    });
+
+    projectGrid.addEventListener("keydown", (e) => {
+      const card = e.target.closest(".project-card");
+      if (card && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        openArtwork(card);
+      }
+    });
+
+    $("modalClose")?.addEventListener("click", closeArtwork);
+    artModal.querySelector("[data-close-modal]")?.addEventListener("click", closeArtwork);
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && artModal.classList.contains("is-open")) closeArtwork();
+    });
+
+    toggleModalArt?.addEventListener("click", () => {
+      if (!selectedCard) return;
+      const original = selectedCard.querySelector(".original-art");
+      const digital = selectedCard.querySelector(".digital-art");
+      if (!original || !digital) return;
+
+      showingDigital = !showingDigital;
+      swapModalImage(showingDigital ? digital : original);
+      toggleModalArt.textContent = showingDigital ? "View Original Artwork" : "View Digital Version";
+    });
+
+    /* ---------- Gallery: search + filter ---------- */
+    const searchInput = $("projectSearch");
+    const categoryFilter = $("categoryFilter");
+    const emptyState = $("emptyState");
+
+    function filterArtwork() {
+      const text = (searchInput?.value || "").trim().toLowerCase();
+      const category = (categoryFilter?.value || "all").toLowerCase();
+      let visible = 0;
+
+      projectGrid.querySelectorAll(".project-card").forEach((card) => {
+        const d = card.dataset;
+        const content = [d.title, d.category, d.medium, d.description].join(" ").toLowerCase();
+        const show =
+          content.includes(text) &&
+          (category === "all" || (d.category || "").toLowerCase() === category);
+
+        card.hidden = !show;
+        if (show) visible++;
+      });
+
+      if (emptyState) emptyState.hidden = visible !== 0;
+    }
+
+    searchInput?.addEventListener("input", filterArtwork);
+    categoryFilter?.addEventListener("change", filterArtwork);
+    filterArtwork();
   }
 
-  let selectedCard = null;
-  let showingDigital = false;
+  /* ---------- Visitor counter (GoatCounter) ----------
+     Uses GoatCounter's JSON endpoint so the number is styled by our own
+     CSS. (The old visit_count() widget loads a white iframe, which is why
+     the counter looked all white.)
+     Requires: GoatCounter → Settings → "Allow adding visitor counts
+     on your website" to be enabled. */
+  const counter = $("visitor-count");
 
-  function openArtwork(card) {
-    selectedCard = card;
-    showingDigital = false;
-
-    const original = card.querySelector(".original-art");
-    const digital = card.querySelector(".digital-art");
-
-    modalTitle.textContent =
-      card.dataset.title || "Untitled Artwork";
-
-    modalCategory.textContent =
-      card.dataset.category || "Artwork";
-
-    modalMedium.textContent =
-      card.dataset.medium || "";
-
-    modalDescription.textContent =
-      card.dataset.description || "";
-
-    modalImage.src = original
-      ? original.getAttribute("src")
-      : "";
-
-    modalImage.alt = original
-      ? original.alt
-      : modalTitle.textContent;
-
-    toggleModalArt.hidden = !digital;
-
-    toggleModalArt.textContent = "View Digital Version";
-
-    artModal.classList.add("is-open");
-    artModal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-
-    modalClose?.focus();
+  if (counter) {
+    fetch("https://jamesharvey.goatcounter.com/counter/TOTAL.json")
+      .then((res) => {
+        if (!res.ok) throw new Error(res.status);
+        return res.json();
+      })
+      .then((data) => {
+        counter.innerHTML =
+          `<span class="visitor-number">${data.count}</span>` +
+          `<span class="visitor-label">total visits</span>`;
+      })
+      .catch(() => {
+        counter.innerHTML = `<span class="visitor-error">Visitor count unavailable.</span>`;
+      });
   }
-
-  function closeArtwork() {
-    artModal.classList.remove("is-open");
-    artModal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
-
-    selectedCard = null;
-  }
-
-  projectGrid.addEventListener("click", (event) => {
-    const card = event.target.closest(".project-card");
-
-    if (card && projectGrid.contains(card)) {
-      openArtwork(card);
-    }
-  });
-
-  projectGrid.addEventListener("keydown", (event) => {
-    const card = event.target.closest(".project-card");
-
-    if (
-      card &&
-      (event.key === "Enter" || event.key === " ")
-    ) {
-      event.preventDefault();
-      openArtwork(card);
-    }
-  });
-
-  modalClose?.addEventListener("click", closeArtwork);
-
-  artModal.querySelector("[data-close-modal]")
-    ?.addEventListener("click", closeArtwork);
-
-  toggleModalArt?.addEventListener("click", () => {
-    if (!selectedCard) return;
-
-    const original = selectedCard.querySelector(".original-art");
-    const digital = selectedCard.querySelector(".digital-art");
-
-    if (!original || !digital) return;
-
-    showingDigital = !showingDigital;
-
-    const image = showingDigital ? digital : original;
-
-    modalImage.src = image.getAttribute("src");
-    modalImage.alt = image.alt;
-
-    toggleModalArt.textContent = showingDigital
-      ? "View Original Artwork"
-      : "View Digital Version";
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Escape" &&
-      artModal.classList.contains("is-open")
-    ) {
-      closeArtwork();
-    }
-  });
-
-  
- 
-function filterArtwork() {
-  const searchInput = document.getElementById("projectSearch");
-  const categoryFilter = document.getElementById("categoryFilter");
-  const projectGrid = document.getElementById("projectGrid");
-  const emptyState = document.getElementById("emptyState");
-
-  if (!searchInput || !categoryFilter || !projectGrid) return;
-
-  const searchText = searchInput.value.trim().toLowerCase();
-  const selectedCategory = categoryFilter.value.toLowerCase();
-  const cards = projectGrid.querySelectorAll(".project-card");
-
-  let visibleCount = 0;
-
-  cards.forEach((card) => {
-    const title = card.dataset.title || "";
-    const category = card.dataset.category || "";
-    const medium = card.dataset.medium || "";
-    const description = card.dataset.description || "";
-
-    const imageAltText = Array.from(card.querySelectorAll("img"))
-      .map((img) => img.alt || "")
-      .join(" ");
-
-    const cardText = card.querySelector(".project-info")?.innerText || "";
-
-    const searchableContent = [
-      title,
-      category,
-      medium,
-      description,
-      imageAltText,
-      cardText
-    ].join(" ").toLowerCase();
-
-    const matchesSearch = searchableContent.includes(searchText);
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      category.toLowerCase() === selectedCategory;
-
-    const shouldShow = matchesSearch && matchesCategory;
-
-    card.hidden = !shouldShow;
-
-    if (shouldShow) {
-      visibleCount++;
-    }
-  });
-
-  if (emptyState) {
-    emptyState.hidden = visibleCount !== 0;
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("projectSearch");
-  const categoryFilter = document.getElementById("categoryFilter");
-
-  searchInput?.addEventListener("input", filterArtwork);
-  categoryFilter?.addEventListener("change", filterArtwork);
-
-  filterArtwork();
-});
-
-
-  searchInput?.addEventListener("input", filterArtwork);
-  categoryFilter?.addEventListener("change", filterArtwork);
-
-  filterArtwork();
-
-
-  searchInput?.addEventListener("input", filterArtwork);
-  categoryFilter?.addEventListener("change", filterArtwork);
-});
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const searchInput = document.getElementById("projectSearch");
-    const categoryFilter = document.getElementById("categoryFilter");
-    const projectGrid = document.getElementById("projectGrid");
-    const emptyState = document.getElementById("emptyState");
-
-    if (!searchInput || !categoryFilter || !projectGrid) return;
-
-    const projectCards = projectGrid.querySelectorAll(".project-card");
-
-    function filterArtworks() {
-        const searchText = searchInput.value.trim().toLowerCase();
-        const selectedCategory = categoryFilter.value.toLowerCase();
-        let visibleCount = 0;
-
-        projectCards.forEach((card) => {
-            const title = card.dataset.title || "";
-            const category = card.dataset.category || "";
-            const medium = card.dataset.medium || "";
-            const description = card.dataset.description || "";
-            const cardText = card.innerText || "";
-
-            const searchableText = (
-                title + " " +
-                category + " " +
-                medium + " " +
-                description + " " +
-                cardText
-            ).toLowerCase();
-
-            const matchesSearch = searchableText.includes(searchText);
-
-            const matchesCategory =
-                selectedCategory === "all" ||
-                category.toLowerCase() === selectedCategory;
-
-            const shouldShow = matchesSearch && matchesCategory;
-
-            card.style.display = shouldShow ? "" : "none";
-
-            if (shouldShow) {
-                visibleCount++;
-            }
-        });
-
-        if (emptyState) {
-            emptyState.hidden = visibleCount !== 0;
-        }
-    }
-
-    searchInput.addEventListener("input", filterArtworks);
-    categoryFilter.addEventListener("change", filterArtworks);
-
-    filterArtworks();
-});
-/* =========================
-   WEBSITE VISITOR COUNTER
-========================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    const counter = document.getElementById("visitor-count");
-
-    if (!counter) return;
-
-    let attempts = 0;
-    const maxAttempts = 100;
-
-    const loadVisitorCount = () => {
-
-        if (
-            window.goatcounter &&
-            typeof window.goatcounter.visit_count === "function"
-        ) {
-
-            counter.innerHTML = "";
-
-            window.goatcounter.visit_count({
-                append: "#visitor-count",
-                path: "TOTAL",
-                no_branding: true
-            });
-
-            return true;
-        }
-
-        return false;
-    };
-
-    const checkCounter = setInterval(() => {
-
-        attempts++;
-
-        if (loadVisitorCount()) {
-            clearInterval(checkCounter);
-        }
-
-        if (attempts >= maxAttempts) {
-            clearInterval(checkCounter);
-
-            counter.innerHTML = `
-                <span class="visitor-error">
-                    Visitor count unavailable.
-                </span>
-            `;
-        }
-
-    }, 200);
-
 });
