@@ -165,26 +165,57 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ---------- Visitor counter (GoatCounter) ----------
-     Uses GoatCounter's JSON endpoint so the number is styled by our own
-     CSS. (The old visit_count() widget loads a white iframe, which is why
-     the counter looked all white.)
-     Requires: GoatCounter → Settings → "Allow adding visitor counts
-     on your website" to be enabled. */
+     Shows unique visitors (same figure as the GoatCounter dashboard)
+     plus total page views. It waits until GoatCounter has recorded this
+     visit, bypasses caching, and refreshes every minute. */
   const counter = $("visitor-count");
 
   if (counter) {
-    fetch("https://jamesharvey.goatcounter.com/counter/TOTAL.json")
-      .then((res) => {
+    const COUNTER_URL = "https://jamesharvey.goatcounter.com/counter/TOTAL.json";
+    const toNumber = (v) => parseInt(String(v ?? "").replace(/\D/g, ""), 10) || 0;
+    let numberEl = null, viewsEl = null, current = 0;
+
+    function countUp(el, from, to) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (from === to || reduce) { el.textContent = to.toLocaleString(); return; }
+      const t0 = performance.now(), dur = 900;
+      const step = (now) => {
+        const p = Math.min((now - t0) / dur, 1);
+        el.textContent = Math.round(from + (to - from) * p).toLocaleString();
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    async function updateCounter() {
+      try {
+        const res = await fetch(`${COUNTER_URL}?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok) throw new Error(res.status);
-        return res.json();
-      })
-      .then((data) => {
-        counter.innerHTML =
-          `<span class="visitor-number">${data.count}</span>` +
-          `<span class="visitor-label">total visits</span>`;
-      })
-      .catch(() => {
-        counter.innerHTML = `<span class="visitor-error">Visitor count unavailable.</span>`;
-      });
+        const data = await res.json();
+        const visitors = toNumber(data.count_unique ?? data.count);
+        const views = toNumber(data.count);
+
+        if (!numberEl) {
+          counter.innerHTML =
+            '<span class="visitor-number">0</span>' +
+            '<span class="visitor-label">unique visitors</span>' +
+            '<span class="visitor-views"></span>';
+          numberEl = counter.querySelector(".visitor-number");
+          viewsEl = counter.querySelector(".visitor-views");
+        }
+        countUp(numberEl, current, visitors);
+        current = visitors;
+        viewsEl.textContent = `• ${views.toLocaleString()} page views`;
+      } catch (err) {
+        if (!numberEl) counter.innerHTML = '<span class="visitor-error">Visitor count unavailable.</span>';
+      }
+    }
+
+    const startCounter = () => {
+      setTimeout(updateCounter, 1500); // let GoatCounter record this visit first
+      setInterval(updateCounter, 60000);
+    };
+    if (document.readyState === "complete") startCounter();
+    else window.addEventListener("load", startCounter);
   }
 });
